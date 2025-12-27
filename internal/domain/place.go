@@ -21,6 +21,7 @@ type Place struct {
 	ID       string
 	Name     string
 	Slug     string
+	CityID   string
 	Lat      float64
 	Lng      float64
 	Profiles []Profile
@@ -29,6 +30,10 @@ type Place struct {
 func (p *Place) Validate() error {
 	if strings.TrimSpace(p.Name) == "" {
 		return errors.New("nome não pode estar vazio")
+	}
+
+	if p.CityID == "" {
+		return errors.New("cityID é obrigatório")
 	}
 
 	if len(p.Profiles) == 0 {

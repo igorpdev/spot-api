@@ -28,6 +28,19 @@ func (r *MemoryRepository) FindAll() ([]*domain.Place, error) {
 	return places, nil
 }
 
+func (r *MemoryRepository) FindByCity(cityID string) ([]*domain.Place, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	places := make([]*domain.Place, 0)
+	for _, place := range r.places {
+		if place.CityID == cityID {
+			places = append(places, place)
+		}
+	}
+	return places, nil
+}
+
 func (r *MemoryRepository) FindBySlug(slug string) (*domain.Place, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
