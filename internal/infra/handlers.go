@@ -172,3 +172,31 @@ func (h *Handlers) GetPlaceBySlug(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
+
+func (h *Handlers) GetSuggestions(w http.ResponseWriter, r *http.Request) {
+	citySlug := r.URL.Query().Get("city")
+	if citySlug == "" {
+		http.Error(w, "city é obrigatório", http.StatusBadRequest)
+		return
+	}
+
+	city, err := h.cityRepo.FindBySlug(citySlug)
+	if err != nil {
+		http.Error(w, "cidade não encontrada", http.StatusNotFound)
+		return
+	}
+
+	places, err := h.placeRepo.FindByCity(city.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	responses := make([]PlaceResponse, len(places))
+	for i, place := range places {
+		responses[i] = ToPlaceResponse(place, 0)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(responses)
+}
