@@ -44,31 +44,18 @@ func (h *Handlers) GetPlaces(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	latStr := r.URL.Query().Get("lat")
-	lngStr := r.URL.Query().Get("lng")
+	loc, err := parseLocationAndProfiles(r)
+	if err != nil {
+		http.Error(w, "lat ou lng inválido", http.StatusBadRequest)
+		return
+	}
+
 	radiusStr := r.URL.Query().Get("radius")
-	profilesStr := r.URL.Query().Get("profiles")
+	radius := 50.0
 
-	var lat, lng, radius float64
-	var hasLocation bool
-
-	if latStr != "" && lngStr != "" {
-		var err error
-		lat, err = strconv.ParseFloat(latStr, 64)
-		if err != nil {
-			http.Error(w, "lat inválido", http.StatusBadRequest)
-			return
-		}
-
-		lng, err = strconv.ParseFloat(lngStr, 64)
-		if err != nil {
-			http.Error(w, "lng inválido", http.StatusBadRequest)
-			return
-		}
-
-		hasLocation = true
-		radius = 50.0
+	if loc.HasLocation {
 		if radiusStr != "" {
+			var err error
 			radius, err = strconv.ParseFloat(radiusStr, 64)
 			if err != nil {
 				http.Error(w, "radius inválido", http.StatusBadRequest)
@@ -80,18 +67,10 @@ func (h *Handlers) GetPlaces(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var requestedProfiles []string
-	if profilesStr != "" {
-		requestedProfiles = strings.Split(profilesStr, ",")
-		for i := range requestedProfiles {
-			requestedProfiles[i] = strings.TrimSpace(requestedProfiles[i])
-		}
-	}
-
 	var filteredPlaces []PlaceWithDistance
 
 	for _, place := range places {
-		dist, include := applyFilters(place, hasLocation, lat, lng, radius, requestedProfiles)
+		dist, include := applyFilters(place, loc.HasLocation, loc.Lat, loc.Lng, radius, loc.Profiles)
 		if include {
 			filteredPlaces = append(filteredPlaces, PlaceWithDistance{
 				Place:    place,
@@ -100,7 +79,7 @@ func (h *Handlers) GetPlaces(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if hasLocation {
+	if loc.HasLocation {
 		sort.Slice(filteredPlaces, func(i, j int) bool {
 			return filteredPlaces[i].Distance < filteredPlaces[j].Distance
 		})
@@ -155,6 +134,45 @@ func hasAllProfiles(place *domain.Place, requestedProfiles []string) bool {
 	return true
 }
 
+type parsedLocation struct {
+	Lat         float64
+	Lng         float64
+	HasLocation bool
+	Profiles    []string
+}
+
+func parseLocationAndProfiles(r *http.Request) (parsedLocation, error) {
+	var result parsedLocation
+
+	latStr := r.URL.Query().Get("lat")
+	lngStr := r.URL.Query().Get("lng")
+	profilesStr := r.URL.Query().Get("profiles")
+
+	if latStr != "" && lngStr != "" {
+		var err error
+		result.Lat, err = strconv.ParseFloat(latStr, 64)
+		if err != nil {
+			return result, err
+		}
+
+		result.Lng, err = strconv.ParseFloat(lngStr, 64)
+		if err != nil {
+			return result, err
+		}
+
+		result.HasLocation = true
+	}
+
+	if profilesStr != "" {
+		result.Profiles = strings.Split(profilesStr, ",")
+		for i := range result.Profiles {
+			result.Profiles[i] = strings.TrimSpace(result.Profiles[i])
+		}
+	}
+
+	return result, nil
+}
+
 func (h *Handlers) GetPlaceBySlug(w http.ResponseWriter, r *http.Request) {
 	slug := r.PathValue("slug")
 	if slug == "" {
@@ -192,8 +210,23 @@ func (h *Handlers) GetSuggestions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses := make([]PlaceResponse, len(places))
-	for i, place := range places {
+	loc, err := parseLocationAndProfiles(r)
+	if err != nil {
+		http.Error(w, "lat ou lng inválido", http.StatusBadRequest)
+		return
+	}
+
+	var filteredPlaces []*domain.Place
+
+	for _, place := range places {
+		score := domain.CalculateScore(place, loc.HasLocation, loc.Lat, loc.Lng, loc.Profiles)
+		if score > 0 {
+			filteredPlaces = append(filteredPlaces, place)
+		}
+	}
+
+	responses := make([]PlaceResponse, len(filteredPlaces))
+	for i, place := range filteredPlaces {
 		responses[i] = ToPlaceResponse(place, 0)
 	}
 

@@ -26,3 +26,5 @@ Thumbs.db
 
 # Internal
 internal/docs/**
+.gitmessage
+.cursorrules
