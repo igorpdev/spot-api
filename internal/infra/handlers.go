@@ -216,20 +216,32 @@ func (h *Handlers) GetSuggestions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var filteredPlaces []*domain.Place
+	var suggestions []SuggestionWithScore
 
 	for _, place := range places {
 		score := domain.CalculateScore(place, loc.HasLocation, loc.Lat, loc.Lng, loc.Profiles)
 		if score > 0 {
-			filteredPlaces = append(filteredPlaces, place)
+			suggestions = append(suggestions, SuggestionWithScore{
+				Place: place,
+				Score: score,
+			})
 		}
 	}
 
-	responses := make([]PlaceResponse, len(filteredPlaces))
-	for i, place := range filteredPlaces {
-		responses[i] = ToPlaceResponse(place, 0)
+	sort.Slice(suggestions, func(i, j int) bool {
+		return suggestions[i].Score > suggestions[j].Score
+	})
+
+	responses := make([]SuggestionResponse, len(suggestions))
+	for i, sws := range suggestions {
+		responses[i] = ToSuggestionResponse(sws.Place, sws.Score)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(responses)
+}
+
+type SuggestionWithScore struct {
+	Place *domain.Place
+	Score float64
 }
