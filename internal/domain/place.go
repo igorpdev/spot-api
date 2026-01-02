@@ -18,13 +18,17 @@ const (
 )
 
 type Place struct {
-	ID       string
-	Name     string
-	Slug     string
-	CityID   string
-	Lat      float64
-	Lng      float64
-	Profiles []Profile
+	ID                 string
+	Name               string
+	Slug               string
+	CityID             string
+	Lat                float64
+	Lng                float64
+	Profiles           []Profile
+	Description        string
+	MakesSenseFor      string
+	DoesNotMakeSenseIf string
+	Tags               []string
 }
 
 func (p *Place) Validate() error {

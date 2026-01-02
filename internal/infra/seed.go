@@ -27,6 +27,10 @@ func SeedPlaces(placeRepo *MemoryRepository, cityRepo *MemoryCityRepository) err
 				domain.ProfileBoemio,
 				domain.ProfileNoturno,
 			},
+			Description:        "boteco de esquina com cerveja gelada e petiscos simples",
+			MakesSenseFor:      "quem quer descomprimir sem frescura depois do trabalho",
+			DoesNotMakeSenseIf: "você quer impressionar alguém ou precisa de silêncio",
+			Tags:               []string{"cerveja", "petiscos", "informal"},
 		},
 		{
 			ID:     "2",
@@ -51,6 +55,10 @@ func SeedPlaces(placeRepo *MemoryRepository, cityRepo *MemoryCityRepository) err
 				domain.ProfileArtes,
 				domain.ProfileContemplativo,
 			},
+			Description:        "museu de arte com acervo brasileiro e exposições temporárias",
+			MakesSenseFor:      "quem quer ver arte com calma e sem pressa",
+			DoesNotMakeSenseIf: "você não gosta de museus ou está com pressa",
+			Tags:               []string{"museu", "arte", "cultura"},
 		},
 		{
 			ID:     "4",
@@ -111,6 +119,10 @@ func SeedPlaces(placeRepo *MemoryRepository, cityRepo *MemoryCityRepository) err
 				domain.ProfileNoturno,
 				domain.ProfileArtes,
 			},
+			Description:        "bairro boêmio com bares, galerias e grafites nas ruas",
+			MakesSenseFor:      "quem quer sair à noite, ver arte urbana e beber com amigos",
+			DoesNotMakeSenseIf: "você quer sossego ou não gosta de agito noturno",
+			Tags:               []string{"bairro", "noite", "arte urbana", "bares"},
 		},
 		{
 			ID:     "9",
