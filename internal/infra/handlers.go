@@ -234,7 +234,8 @@ func (h *Handlers) GetSuggestions(w http.ResponseWriter, r *http.Request) {
 
 	responses := make([]SuggestionResponse, len(suggestions))
 	for i, sws := range suggestions {
-		responses[i] = ToSuggestionResponse(sws.Place, sws.Score)
+		reasons := domain.CalculateReasons(sws.Place, loc.HasLocation, loc.Lat, loc.Lng, loc.Profiles)
+		responses[i] = ToSuggestionResponse(sws.Place, sws.Score, reasons)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

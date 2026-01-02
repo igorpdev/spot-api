@@ -30,13 +30,15 @@ func ToPlaceResponse(place *domain.Place, distance float64) PlaceResponse {
 }
 
 type SuggestionResponse struct {
-	Place PlaceResponse `json:"place"`
-	Score float64       `json:"score"`
+	Place   PlaceResponse `json:"place"`
+	Score   float64       `json:"score"`
+	Reasons []string      `json:"reasons"`
 }
 
-func ToSuggestionResponse(place *domain.Place, score float64) SuggestionResponse {
+func ToSuggestionResponse(place *domain.Place, score float64, reasons []string) SuggestionResponse {
 	return SuggestionResponse{
-		Place: ToPlaceResponse(place, 0),
-		Score: score,
+		Place:   ToPlaceResponse(place, 0),
+		Score:   score,
+		Reasons: reasons,
 	}
 }

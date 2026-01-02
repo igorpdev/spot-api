@@ -46,8 +46,31 @@ go run ./cmd/api
 
 API em `http://localhost:8080`.
 
-Endpoints básicos:
-- `GET /health`
-- `GET /places`
-- `GET /places/{slug}`
+## Endpoints
+
+### `GET /health`
+Healthcheck.
+
+### `GET /places?city=sp`
+Lista lugares de uma cidade. Query params opcionais:
+- `lat`, `lng` — localização do usuário
+- `radius` — raio em km (default: 50)
+- `profiles` — filtro por perfis (ex: `profiles=boemio,noturno`)
+
+### `GET /places/{slug}`
+Detalhes de um lugar pelo slug.
+
+### `GET /suggestions?city=sp`
+Sugestões personalizadas. Query params opcionais:
+- `lat`, `lng` — localização do usuário
+- `profiles` — perfis desejados (ex: `profiles=boemio`)
+
+Retorna lugares ordenados por score, com reasons explicando cada sugestão:
+```json
+{
+  "place": { ... },
+  "score": 0.75,
+  "reasons": ["perto: 1.2km", "perfil: boemio"]
+}
+```
 
