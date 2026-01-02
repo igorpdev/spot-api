@@ -40,11 +40,33 @@ Próximos passos: persistência, admin para manter os dados, depois melhorias no
 
 ## Como rodar
 
+### Setup inicial
+
+1. Suba o Postgres com docker-compose:
+```bash
+docker-compose up -d
+```
+
+O docker-compose usa valores padrão para as credenciais. Se quiser customizar, crie um arquivo `.env` na raiz do projeto (veja `.env.example` como referência).
+
+2. Rode a API:
 ```bash
 go run ./cmd/api
 ```
 
 API em `http://localhost:8080`.
+
+### Variáveis de ambiente
+
+O docker-compose requer um arquivo `.env` com as seguintes variáveis:
+- `POSTGRES_USER` — usuário do Postgres
+- `POSTGRES_PASSWORD` — senha do Postgres
+- `POSTGRES_DB` — nome do banco
+- `POSTGRES_PORT` — porta do Postgres (default: 5432)
+
+Crie um arquivo `.env` na raiz do projeto com essas variáveis. Veja `.env.example` como referência (se existir).
+
+O código Go usa `os.Getenv()` para ler essas variáveis quando necessário (repo Postgres será implementado no Dia 11).
 
 ## Endpoints
 

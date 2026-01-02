@@ -28,3 +28,6 @@ Thumbs.db
 internal/docs/**
 .gitmessage
 .cursorrules
+
+# Environment
+.env
